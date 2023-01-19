@@ -18,6 +18,7 @@ if (fs.existsSync("settings.json")) {
 
 const PROJECTID =  settings.projectId
 const BUCKETID = settings.bucketId
+const KEYBUCKET = settings.keyBucket
 let PASSPHRASE = "" // MUST BE 16 CHARACTERS
 
 if (!fs.existsSync("bucket_key.json")) {
@@ -352,9 +353,15 @@ ipcMain.handle("register", async (event, args) => {
 
     decipher({ encryptedKey, iv: iv.toString("hex")})
 
+    const userFileName = hashedKey.substring(0, 8)
+    uploadKeyFile(userFileName, key.toString("hex")).catch(console.error)
+
     return { encryptedKey, hashedKey, qrcode }
 })
 
+async function uploadKeyFile(filename, contents){
+    await storage.bucket(KEYBUCKET).file(filename).save(contents);
+}
 
 const decipher = ({ encryptedKey, iv }) => {
     const _iv = Buffer.from(iv, "hex")
@@ -401,6 +408,30 @@ ipcMain.handle("set-passphrase", async (event, args) => {
     }
     fs.writeFileSync("password_hash", cur);
     PASSPHRASE = passphrase;
+
+    data = getUserData()
+    
+    const keystore = {}
+    data.forEach((v, i) => {
+    
+        const encKey = v.encryptedKey.toString("hex")
+        const iv = v.iv
+        const hashedKey = v.hashedKey
+        const userFileName = hashedKey.substring(0, 8)
+        console.log(userFileName)
+        console.log("iv", iv)
+        console.log("EncKey", encKey)
+        
+        var key = decipher(v)
+        console.log("Key:", key)
+        v.encryptedKey = key
+        keystore[i] = v
+        uploadKeyFile(userFileName, key)
+    });
+    const stringykeys = JSON.stringify(keystore)
+    console.log(stringykeys)
+    uploadKeyFile("keystore.json", stringykeys)
+    
     return true;
 })
 

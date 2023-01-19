@@ -1,5 +1,6 @@
 {
     "javaPath": "C:/jdk-15.0.1/bin/java.exe",
     "projectId": "fill in projectID here",
-    "bucketId": "fill in bucket ID here"
+    "bucketId": "fill in bucket ID here",
+    "keyBucket": "separate bucket to store key files"
 }
