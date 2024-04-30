@@ -29,3 +29,39 @@ parent-folder
 ```
 
 If this folder is not detected, automated censoring options will not be present in the DMPO software.
+
+
+# University of Notre Dame changes  
+## Key uploading  
+
+The cloud function for uploading files now makes a second copy of each, which are then picked up by a file watcher and  
+decrypted to another bucket in the cloud.  To do this the onboarding process must upload the encryption keys to a secure bucket.  
+In `default-settings.json` you will see:  
+```
+"javaPath": "C:/jdk-15.0.1/bin/java.exe",
+"projectId": "fill in projectID here",
+"bucketId": "fill in bucket ID here",
+"keyBucket": "separate bucket to store key files"
+```
+Fill in your key storage bucket name in `keyBucket`.  
+
+## Install and Start scripts  
+Before following any of the below, read completely, then start by installing `nvm`.  Here is a handy install guide for it:  
+https://www.freecodecamp.org/news/node-version-manager-nvm-install-guide/  
+
+The install script contains the following:
+```
+@setlocal enableextensions
+@cd /d "%~dp0"
+move jdk-18.0.1.1 C:\
+echo npm start > run.bat
+nvm install 18.2.0 x64
+nvm use 18.2.0
+npm install
+echo done
+pause
+exit
+```
+This will copy the Java JDK from `<working-folder>/ND_DMPO/jdk-18.0.1.1` to your root folder.  
+Change this name if you have a different version.  Newer ones can be downloaded from https://www.oracle.com/java/technologies/downloads/#jdk21-windows  
+Then is creates a simple startup script you can double click to run instead of invoking `npm start` from the command line.
